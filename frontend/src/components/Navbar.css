@@ -1,0 +1,17 @@
+.navbar-menu {
+    display: block;
+}
+
+.mobile-menu-button {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .navbar-menu {
+        display: none !important;
+    }
+
+    .mobile-menu-button {
+        display: inline-flex !important;
+    }
+}
