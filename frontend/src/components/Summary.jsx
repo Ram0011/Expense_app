@@ -1,7 +1,17 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { DatePicker, List, Card, Row, Col, Select, Empty } from "antd";
+import {
+    DatePicker,
+    List,
+    Card,
+    Row,
+    Col,
+    Select,
+    Empty,
+    Statistic,
+    Divider,
+} from "antd";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -11,6 +21,7 @@ const Summary = () => {
     const [dates, setDates] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [allCategories, setAllCategories] = useState([]);
+    const [totalAll, setTotalAll] = useState(0);
 
     const API_BASE = import.meta.env.VITE_API_BASE_URI;
 
@@ -37,48 +48,83 @@ const Summary = () => {
 
         axios
             .get(`${API_BASE}/summary`, { params })
-            .then((res) => setSummary(res.data))
+            .then((res) => {
+                setSummary(res.data);
+                const total = res.data.reduce(
+                    (sum, item) => sum + Number(item.total || 0),
+                    0
+                );
+                setTotalAll(total);
+            })
             .catch((err) => console.error(err));
     }, [dates, selectedCategories]);
 
-    const handleDateChange = (dates) => {
-        setDates(dates);
-    };
-
-    const handleCategoryChange = (value) => {
-        setSelectedCategories(value);
-    };
+    const handleDateChange = (dates) => setDates(dates);
+    const handleCategoryChange = (value) => setSelectedCategories(value);
 
     return (
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
+            className="p-4"
         >
             <Row justify="center">
-                <Col xs={24} sm={18} md={12} lg={8}>
-                    <Card title="Category Summary">
-                        <Select
-                            mode="multiple"
-                            allowClear
-                            placeholder="Select categories (all by default)"
-                            onChange={handleCategoryChange}
-                            className="mb-4 w-full"
-                            value={selectedCategories}
-                            style={{ marginBottom: "11px" }}
+                <Col xs={24} sm={20} md={16} lg={10}>
+                    <Card
+                        title="Expense Summary"
+                        bordered={false}
+                        className="shadow-md rounded-lg"
+                    >
+                        <div className="mb-4">
+                            <h5 className="text-md font-semibold mb-2">
+                                Select Category
+                            </h5>
+                            <Select
+                                mode="multiple"
+                                allowClear
+                                placeholder="Select categories (all by default)"
+                                onChange={handleCategoryChange}
+                                value={selectedCategories}
+                                className="w-full"
+                            >
+                                {allCategories.map((cat) => (
+                                    <Option key={cat} value={cat}>
+                                        {cat}
+                                    </Option>
+                                ))}
+                            </Select>
+                        </div>
+
+                        <div className="mb-4">
+                            <h5 className="text-md font-semibold mb-2">
+                                Select Date
+                            </h5>
+                            <RangePicker
+                                onChange={handleDateChange}
+                                className="w-full"
+                            />
+                        </div>
+
+                        {/* Grand Total Display */}
+                        <Card
+                            className="mb-4 bg-blue-50"
+                            size="small"
+                            bordered={false}
                         >
-                            {allCategories.map((cat) => (
-                                <Option key={cat} value={cat}>
-                                    {cat}
-                                </Option>
-                            ))}
-                        </Select>
-                        <RangePicker
-                            onChange={handleDateChange}
-                            className="mb-4 w-full"
-                        />
+                            <Statistic
+                                title="Total Expense (All Categories)"
+                                value={totalAll}
+                                precision={2}
+                                prefix="₹"
+                            />
+                        </Card>
+
+                        <Divider />
+
+                        {/* Per-category summary */}
                         {summary.length === 0 ? (
-                            <Empty description="No data" />
+                            <Empty description="No data available" />
                         ) : (
                             <List
                                 dataSource={summary}
@@ -87,25 +133,35 @@ const Summary = () => {
                                         ...summary.map((s) => s.total),
                                         1
                                     );
+                                    const width = `calc(${
+                                        (item.total / max) * 100
+                                    }%)`;
+                                    // Set gray background for specific categories
+                                    const isCategoryBar = [
+                                        "Entertainment",
+                                        "Education",
+                                        "Transportation",
+                                    ].includes(item._id);
+                                    const barClass = isCategoryBar
+                                        ? "bg-gray-400 text-black p-2 rounded flex justify-between items-center"
+                                        : "bg-blue-600 text-white p-2 rounded flex justify-between items-center";
+
                                     return (
-                                        <List.Item>
+                                        <List.Item key={item._id}>
                                             <motion.div
-                                                key={item._id}
                                                 initial={{ width: 0 }}
-                                                animate={{ width: "100%" }}
+                                                animate={{ width }}
                                                 transition={{
                                                     delay: index * 0.1,
                                                     duration: 0.5,
                                                 }}
-                                                className="bg-blue-600 text-white p-2 rounded flex justify-between"
-                                                style={{
-                                                    width: `calc(${
-                                                        (item.total / max) * 100
-                                                    }%)`,
-                                                }}
+                                                className={barClass}
                                             >
                                                 <span>{item._id}</span>
-                                                <span>₹{item.total}</span>
+                                                <span>
+                                                    ₹
+                                                    {item.total.toLocaleString()}
+                                                </span>
                                             </motion.div>
                                         </List.Item>
                                     );
