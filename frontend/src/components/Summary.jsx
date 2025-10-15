@@ -136,15 +136,9 @@ const Summary = () => {
                                     const width = `calc(${
                                         (item.total / max) * 100
                                     }%)`;
-                                    // Set gray background for specific categories
-                                    const isCategoryBar = [
-                                        "Entertainment",
-                                        "Education",
-                                        "Transportation",
-                                    ].includes(item._id);
-                                    const barClass = isCategoryBar
-                                        ? "bg-gray-400 text-black p-2 rounded flex justify-between items-center"
-                                        : "bg-blue-600 text-white p-2 rounded flex justify-between items-center";
+
+                                    const barClass =
+                                        "bg-gray-400 text-black p-2 rounded flex justify-between items-center";
 
                                     return (
                                         <List.Item key={item._id}>
