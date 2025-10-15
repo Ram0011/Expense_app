@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const serverless = require("serverless-http");
-const expenseRoutes = require("../routes/expenses");
+const expenseRoutes = require("./routes/expenses");
 
 dotenv.config();
 
@@ -18,5 +18,5 @@ mongoose
 
 app.use("/api/expenses", expenseRoutes);
 
-module.exports = app; // Optional for testing
+module.exports = app;
 module.exports.handler = serverless(app);

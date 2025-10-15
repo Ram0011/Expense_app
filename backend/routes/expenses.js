@@ -3,6 +3,11 @@ const Expense = require("../models/Expense");
 
 const router = express.Router();
 
+//Test
+router.get("/test", (req, res) => {
+    res.send("Backend working");
+});
+
 // Create expense
 router.post("/", async (req, res) => {
     try {
