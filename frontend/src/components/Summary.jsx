@@ -12,10 +12,12 @@ const Summary = () => {
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [allCategories, setAllCategories] = useState([]);
 
+    const API_BASE = import.meta.env.VITE_API_BASE_URI;
+
     // Fetch unique categories on mount
     useEffect(() => {
         axios
-            .get("http://localhost:5000/api/expenses")
+            .get(API_BASE)
             .then((res) => {
                 const categories = [
                     ...new Set(res.data.map((exp) => exp.category)),
@@ -34,7 +36,7 @@ const Summary = () => {
             params.categories = selectedCategories.join(",");
 
         axios
-            .get("http://localhost:5000/api/expenses/summary", { params })
+            .get(`${API_BASE}/summary`, { params })
             .then((res) => setSummary(res.data))
             .catch((err) => console.error(err));
     }, [dates, selectedCategories]);

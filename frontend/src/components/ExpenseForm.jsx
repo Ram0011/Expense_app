@@ -17,6 +17,9 @@ import dayjs from "dayjs";
 
 const { Option } = Select;
 
+// ✅ Use the base URL from your Vite environment
+const API_BASE = import.meta.env.VITE_API_BASE_URI;
+
 const ExpenseForm = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -25,7 +28,7 @@ const ExpenseForm = () => {
     useEffect(() => {
         if (id) {
             axios
-                .get(`http://localhost:5000/api/expenses/${id}`)
+                .get(`${API_BASE}/${id}`)
                 .then((res) => {
                     const data = res.data;
                     form.setFieldsValue({ ...data, date: dayjs(data.date) });
@@ -40,9 +43,7 @@ const ExpenseForm = () => {
     const onFinish = (values) => {
         const payload = { ...values, date: values.date.toDate() };
         const method = id ? "put" : "post";
-        const url = id
-            ? `http://localhost:5000/api/expenses/${id}`
-            : "http://localhost:5000/api/expenses";
+        const url = id ? `${API_BASE}/${id}` : API_BASE;
 
         axios[method](url, payload)
             .then(() => {

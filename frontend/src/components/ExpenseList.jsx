@@ -6,20 +6,26 @@ import { Table, Button, Popconfirm, message } from "antd";
 
 const ExpenseList = () => {
     const [expenses, setExpenses] = useState([]);
+    const API_BASE = import.meta.env.VITE_API_BASE_URI;
 
     useEffect(() => {
         axios
-            .get("http://localhost:5000/api/expenses")
+            .get(API_BASE)
             .then((res) => setExpenses(res.data))
             .catch((err) => console.error(err));
     }, []);
 
     const handleDelete = (id) => {
         axios
-            .delete(`http://localhost:5000/api/expenses/${id}`)
-            .then(() => setExpenses(expenses.filter((exp) => exp._id !== id)))
-            .then(message.success("Expense deleted!"))
-            .catch((err) => console.error(err));
+            .delete(`${API_BASE}/${id}`)
+            .then(() => {
+                setExpenses(expenses.filter((exp) => exp._id !== id));
+                message.success("Expense deleted!");
+            })
+            .catch((err) => {
+                console.error(err);
+                message.error("Failed to delete expense.");
+            });
     };
 
     const columns = [
@@ -28,26 +34,22 @@ const ExpenseList = () => {
             dataIndex: "amount",
             key: "amount",
             render: (text) => `${text}`,
-            responsive: ["xs", "sm", "md"],
         },
         {
             title: "Date",
             dataIndex: "date",
             key: "date",
             render: (text) => new Date(text).toLocaleDateString(),
-            responsive: ["xs", "sm", "md"],
         },
         {
             title: "Description",
             dataIndex: "description",
             key: "description",
-            responsive: ["xs", "sm", "md"],
-        }, // Hide on xs if too wide
+        },
         {
             title: "Category",
             dataIndex: "category",
             key: "category",
-            responsive: ["xs", "sm", "md"],
         },
         {
             title: "Actions",
@@ -67,7 +69,6 @@ const ExpenseList = () => {
                     </Popconfirm>
                 </>
             ),
-            responsive: ["xs", "sm", "md"],
         },
     ];
 
@@ -81,9 +82,7 @@ const ExpenseList = () => {
                 columns={columns}
                 dataSource={expenses}
                 rowKey="_id"
-                // Simpler pagination on mobile
                 pagination={{ pageSize: 5, simple: true }}
-                // Horizontal scroll on mobile
                 scroll={{ x: "max-content" }}
             />
         </motion.div>
