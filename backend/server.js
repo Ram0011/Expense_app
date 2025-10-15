@@ -18,5 +18,6 @@ mongoose
 
 app.use("/api/expenses", expenseRoutes);
 
+//for vercel
 module.exports = app;
 module.exports.handler = serverless(app);
