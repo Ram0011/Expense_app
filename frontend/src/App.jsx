@@ -5,6 +5,7 @@ import ExpenseForm from "./components/ExpenseForm";
 import Summary from "./components/Summary";
 import Navbar from "./components/Navbar";
 import { ConfigProvider, Layout } from "antd";
+import FooterComponent from "./components/FooterComponent";
 
 const { Content } = Layout;
 
@@ -12,7 +13,13 @@ function App() {
     return (
         <ConfigProvider>
             <Router>
-                <Layout className="min-h-screen">
+                <Layout
+                    style={{
+                        minHeight: "100vh",
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                >
                     <Navbar />
                     <Content style={{ padding: "16px" }}>
                         <motion.main
@@ -31,6 +38,7 @@ function App() {
                             </Routes>
                         </motion.main>
                     </Content>
+                    <FooterComponent />
                 </Layout>
             </Router>
         </ConfigProvider>
