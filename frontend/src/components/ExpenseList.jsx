@@ -10,7 +10,7 @@ const ExpenseList = () => {
 
     useEffect(() => {
         axios
-            .get(API_BASE)
+            .get(`${API_BASE}/`)
             .then((res) => setExpenses(res.data))
             .catch((err) => console.error(err));
     }, []);

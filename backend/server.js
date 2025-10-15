@@ -11,31 +11,39 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MongoDB connection (optimized for Vercel)
-let isConnected;
+// ✅ Maintain a single MongoDB connection across serverless calls
+let cachedDb = null;
 
 async function connectDB() {
-    if (isConnected) return;
+    if (cachedDb && mongoose.connection.readyState === 1) {
+        console.log("⚡ Using existing MongoDB connection");
+        return cachedDb;
+    }
+
     try {
         const conn = await mongoose.connect(process.env.MONGO_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 10000, // Prevent long hanging connections
         });
-        isConnected = conn.connections[0].readyState;
+        cachedDb = conn;
         console.log("✅ MongoDB connected successfully");
+        return conn;
     } catch (err) {
-        console.error("❌ MongoDB connection error:", err);
+        console.error("❌ MongoDB connection error:", err.message);
     }
 }
 
-connectDB();
+// Middleware to ensure DB is connected before each request
+app.use(async (req, res, next) => {
+    await connectDB();
+    next();
+});
 
 app.get("/", (req, res) => {
-    res.send("Expense Tracker Backend is running 🚀");
+    res.send("🚀 Expense Tracker Backend is running on Vercel");
 });
 
 app.use("/api/expenses", expenseRoutes);
 
-// For Vercel serverless function
+// ✅ Export for Vercel
 module.exports = app;
 module.exports.handler = serverless(app);
